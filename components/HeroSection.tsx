@@ -40,7 +40,7 @@ export default function HeroSection() {
             <div className="banner-three-wrapper position-relative z-1">
               <div className="banner-three-man position-absolute start-50 translate-middle-x" style={{ width: "750px", maxWidth: "100%" }}>
                 <img
-                  src="/assets/images/shapes/Adobe Express - file.png"
+                  src="/assets/images/shapes/banner-three-man.png"
                   alt="developer"
                   style={{ width: "100%", height: "auto" }}
                 />

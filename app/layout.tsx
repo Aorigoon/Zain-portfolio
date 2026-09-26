@@ -27,6 +27,16 @@ export default function RootLayout({ children }) {
         <Script src="/assets/js/aos.js" />
         <Script src="/assets/js/purecounter.js" />
         <Script src="/assets/js/magnific-popup.min.js" />
+        
+        {/* GSAP Scripts */}
+        <Script src="/assets/js/gsap/gsap.js" />
+        <Script src="/assets/js/gsap/gsap-scroll-to-plugin.js" />
+        <Script src="/assets/js/gsap/gsap-scroll-smoother.js" />
+        <Script src="/assets/js/gsap/gsap-scroll-trigger.js" />
+        <Script src="/assets/js/gsap/gsap-split-text.js" />
+        <Script src="/assets/js/gsap/chroma.min.js" />
+        <Script src="/assets/js/custom-gsap.js" />
+        
         <Script src="/assets/js/main.js" />
       </body>
     </html>
