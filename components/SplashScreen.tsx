@@ -1,19 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import PushingCharacter from "./PushingCharacter";
 
 const WORDS = [
-  "Hello",        // English
-  "سلام",         // Urdu
-  "नमस्ते",       // Hindi
-  "হ্যালো",         // Bengali
-  "Привет",       // Russian
-  "Hola",         // Spanish
-  "Bonjour",      // French
-  "你好",          // Chinese (Added)
-  "안녕하세요",     // Korean (Added)
-  "こんにちは",     // Japanese
+  "Hello", "سلام", "नमस्ते", "হ্যালো", "Привет", "Hola", "Bonjour", "你好", "안녕하세요", "こんにちは"
 ];
 
 interface SplashScreenProps {
@@ -23,19 +15,15 @@ interface SplashScreenProps {
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsContainerRef = useRef<HTMLDivElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
+  
+  const [showCharacter, setShowCharacter] = useState(false);
 
   useEffect(() => {
-    if (!wordsContainerRef.current || !pathRef.current || !containerRef.current) return;
+    if (!wordsContainerRef.current || !containerRef.current) return;
 
     const words = wordsContainerRef.current.children;
-    const tl = gsap.timeline({
-      onComplete: () => {
-        if (onComplete) onComplete();
-      },
-    });
+    const tl = gsap.timeline();
 
-    // 1. Animate each word in an ultra-rapid sequence
     Array.from(words).forEach((word) => {
       tl.fromTo(word, 
         { opacity: 0, y: 80 },
@@ -50,32 +38,57 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       });
     });
 
-    // 2. Liquid bend transition (Fluid & gentle arch reveal)
-    tl.to(pathRef.current, {
-      attr: { d: "M 0 0 L 100 0 L 100 100 Q 50 30 0 100 Z" },
-      duration: 0.5,
-      ease: "power2.in"
-    })
-    .to(pathRef.current, {
-      attr: { d: "M 0 0 L 100 0 L 100 0 Q 50 0 0 0 Z" },
-      duration: 0.45,
-      ease: "power2.out"
-    }, "-=0.15"); 
+    tl.to(wordsContainerRef.current, {
+      opacity: 0,
+      duration: 0.2,
+      onComplete: () => {
+        // Words are done. Character appears pushing from the start.
+        setShowCharacter(true);
+        
+        // Push the entire splash screen away to the right
+        // We tilt the screen slightly to make it look like a physical page being pushed from the left edge
+        gsap.to(containerRef.current, {
+          x: "100vw", // Move to the right
+          rotationZ: 4, // Tilt the page slightly downwards on the right
+          rotationY: 15, // 3D tilt inwards from the push
+          transformOrigin: "left center", // Hinge from the left edge where he pushes
+          duration: 1.8,
+          ease: "power2.in",
+          onComplete: () => {
+            if (onComplete) onComplete();
+          }
+        });
+      }
+    });
+
   }, [onComplete]);
 
   return (
-    <div ref={containerRef} className="splash-screen">
-      {/* SVG background overlay that will morph/bend */}
-      <svg className="splash-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path ref={pathRef} d="M 0 0 L 100 0 L 100 100 Q 50 100 0 100 Z" fill="#0c0d0e" />
-      </svg>
-      
-      <div ref={wordsContainerRef} className="splash-words-container">
-        {WORDS.map((word, idx) => (
-          <span key={idx} className="splash-text">
-            {word}
-          </span>
-        ))}
+    <div style={{ position: "fixed", inset: 0, zIndex: 100, pointerEvents: "none" }}>
+      {showCharacter && (
+        // Render Superman on top of the black screen, pushing it.
+        // We keep him at a fixed position (-4 on the X axis, which is the left side).
+        <PushingCharacter charPos={-4} />
+      )}
+
+      <div 
+        ref={containerRef} 
+        className="splash-screen-isolated" 
+        style={{ 
+          backgroundColor: "#0c0d0e", 
+          perspective: "1000px",
+          pointerEvents: "auto",
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          zIndex: 90
+        }}
+      >
+        <div ref={wordsContainerRef} className="splash-words-container-isolated">
+          {WORDS.map((word, idx) => (
+            <span key={idx} className="splash-text-isolated">{word}</span>
+          ))}
+        </div>
       </div>
     </div>
   );

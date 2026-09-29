@@ -1,43 +1,19 @@
 import "./globals.css";
-import Script from "next/script";
+import React from "react";
 
 export const metadata = {
-  title: "Zainulabidin - Portfolio",
+  title: "Zainulabidin - Real Portfolio",
   description: "I design & build full-stack web products that ship & scale.",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800;900&family=Noto+Sans:wght@300;400;500;600;700;800;900&family=Caveat:wght@700&family=Reenie+Beanie&family=Montserrat:wght@900&display=swap" />
-        <link rel="stylesheet" href="/assets/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/assets/css/swiper-bundle.css" />
-        <link rel="stylesheet" href="/assets/css/magnific-popup.css" />
-        <link rel="stylesheet" href="/assets/css/aos.css" />
-        <link rel="stylesheet" href="/assets/css/main.css" />
-        <Script src="/assets/js/phosphor-icon.js" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800;900&display=swap" />
       </head>
       <body suppressHydrationWarning>
         {children}
-        
-        {/* Scripts loaded sequentially with defer */}
-        <Script src="/assets/js/jquery-3.7.1.min.js" />
-        <Script src="/assets/js/boostrap.bundle.min.js" />
-        <Script src="/assets/js/aos.js" />
-        <Script src="/assets/js/purecounter.js" />
-        <Script src="/assets/js/magnific-popup.min.js" />
-        
-        {/* GSAP Scripts */}
-        <Script src="/assets/js/gsap/gsap.js" />
-        <Script src="/assets/js/gsap/gsap-scroll-to-plugin.js" />
-        <Script src="/assets/js/gsap/gsap-scroll-smoother.js" />
-        <Script src="/assets/js/gsap/gsap-scroll-trigger.js" />
-        <Script src="/assets/js/gsap/gsap-split-text.js" />
-        <Script src="/assets/js/gsap/chroma.min.js" />
-        <Script src="/assets/js/custom-gsap.js" />
-        
-        <Script src="/assets/js/main.js" />
       </body>
     </html>
   );
