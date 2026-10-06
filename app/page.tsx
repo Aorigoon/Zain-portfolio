@@ -3,12 +3,18 @@
 import { useEffect, useState } from "react";
 import SplashScreen from "../components/SplashScreen";
 import Header from "../components/Header";
+import HeroSection from "../components/HeroSection";
+import GateWorldSection from "../components/GateWorldSection";
+import SkillsSection from "../components/SkillsSection";
+import LetsMakeSomethingSection from "../components/LetsMakeSomethingSection";
+import ContactSection from "../components/ContactSection";
+import CustomCursor from "../components/CustomCursor";
 
 export default function RealPortfolio() {
   const [splashFinished, setSplashFinished] = useState(false);
 
   useEffect(() => {
-    // Lock scroll on body, but using clip so fixed items don't hide
+    // Lock scroll on body during splash screen
     if (!splashFinished) {
       document.documentElement.style.overflow = "clip";
     } else {
@@ -18,19 +24,19 @@ export default function RealPortfolio() {
   }, [splashFinished]);
 
   return (
-    <div className="isolated-page">
-      {!splashFinished && <SplashScreen onComplete={() => setSplashFinished(true)} />}
+    <>
+      <CustomCursor />
+      <SplashScreen onComplete={() => setSplashFinished(true)} />
 
       <Header />
 
-      <div className="mock-content">
-        <h1>Real Portfolio - New Foundation</h1>
-        <p>This page uses completely standalone CSS. The bottom navbar should be visible here.</p>
-        <p>You can start bringing in your sections (Hero, About, etc.) one by one into this clean structure.</p>
-        <div style={{ height: "150vh" }}>
-          {/* Extra height for scrolling */}
-        </div>
-      </div>
-    </div>
+      <main>
+        <HeroSection splashFinished={splashFinished} />
+        <GateWorldSection />
+        <SkillsSection />
+        <LetsMakeSomethingSection />
+        <ContactSection />
+      </main>
+    </>
   );
 }
