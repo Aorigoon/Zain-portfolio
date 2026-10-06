@@ -19,6 +19,16 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const maskLayerRef = useRef<HTMLDivElement>(null);
 
   const animated = useRef(false);
+  const doneRef = useRef(false);
+
+  const finish = (hideNow: boolean) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    onComplete();
+    // hideNow sirf failsafe ke liye — normal flow me ink tear animation poori
+    // hone ke baad timeline khud container chhupa deta hai
+    if (hideNow && containerRef.current) containerRef.current.style.display = "none";
+  };
 
   useEffect(() => {
     if (animated.current) return;
@@ -27,6 +37,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
     const words   = wordsRef.current.children;
     const pillars = pillarsRef.current ? Array.from(pillarsRef.current.children) : [];
+
+    // Failsafe: agar GSAP/rAF kisi bhi wajah se atak jaye (background tab,
+    // slow phone, GPU hiccup) to splash hamesha ke liye white na chhode.
+    const failsafe = window.setTimeout(() => finish(true), 8000);
+    return () => window.clearTimeout(failsafe);
 
     const tl = gsap.timeline();
 
@@ -50,7 +65,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
     // ── 2. Call onComplete right before ink tear starts ─────────────────
     tl.call(() => {
-      onComplete();
+      finish(false);
     }, undefined, "-=0.15");
 
     // ── 3. GPU-Accelerated PNG Sprite Ink Mask Tear (60 FPS) ───────────

@@ -318,15 +318,17 @@ export default function HeroSection({ splashFinished = false, children }: HeroSe
     let animId: number;
 
     const updateScroll = () => {
-      if (!containerRef.current) return;
+      // loop kabhi marna nahi chahiye — ref/height ek frame ke liye galat ho
+      // to bas skip karo, agle frame do try karo (warna cloth mid-drop atak jata hai)
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const scrollableHeight = containerRef.current.offsetHeight - window.innerHeight;
 
-      const rect = containerRef.current.getBoundingClientRect();
-      const scrollableHeight = containerRef.current.offsetHeight - window.innerHeight;
-
-      if (scrollableHeight <= 0) return;
-
-      const rawProgress = Math.max(0, Math.min(1, -rect.top / scrollableHeight));
-      dropRef.current += (rawProgress - dropRef.current) * 0.08;
+        if (scrollableHeight > 0) {
+          const rawProgress = Math.max(0, Math.min(1, -rect.top / scrollableHeight));
+          dropRef.current += (rawProgress - dropRef.current) * 0.08;
+        }
+      }
 
       animId = requestAnimationFrame(updateScroll);
     };

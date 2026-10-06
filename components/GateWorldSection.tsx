@@ -12,6 +12,24 @@ import { Water } from "three/examples/jsm/objects/Water.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ── Scene error boundary — agar koi model/texture load me fail ho jaye to
+//    poora React tree crash na ho (canvas ke bahar ki UI zinda rehti hai) ──
+class SceneBoundary extends React.Component<
+  { children: React.ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(err: unknown) {
+    console.error("GateWorld scene error:", err);
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 // ── Quality tier: weakest phones get a cheaper reflection + DPR ──────────
 function useQualityTier() {
   return useMemo(() => {
@@ -695,7 +713,9 @@ export default function GateWorldSection() {
       className="relative w-full select-none"
       style={{ height: "620vh", zIndex: 0 }} // four-stop water journey + portal enter
     >
-      <div className="fixed inset-0" style={{ zIndex: 0 }}>
+      <div className="fixed inset-0" style={{ zIndex: 0, backgroundColor: "#cfe6f7" }}>
+        {/* GLB models slow network par late load hote hain — jab tak scene
+            ready na ho, sky color dikhe (white void nahi) */}
         <Canvas
           style={{ position: "absolute", inset: 0 }}
           dpr={[1, quality.maxDpr]}
@@ -709,23 +729,25 @@ export default function GateWorldSection() {
             precision: quality.precision,
           }}
         >
-          <Suspense fallback={null}>
-            {/* Fog melts distant water/clouds into the horizon pale */}
-            <color attach="background" args={["#cfe6f7"]} />
-            <fog attach="fog" args={["#cfe6f7", 35, 150]} />
-            <ambientLight intensity={1.0} />
-            <directionalLight position={[4, 10, 12]} intensity={1.0} />
+          <SceneBoundary>
+            <Suspense fallback={null}>
+              {/* Fog melts distant water/clouds into the horizon pale */}
+              <color attach="background" args={["#cfe6f7"]} />
+              <fog attach="fog" args={["#cfe6f7", 35, 150]} />
+              <ambientLight intensity={1.0} />
+              <directionalLight position={[4, 10, 12]} intensity={1.0} />
 
-            <SkyDome />
-            <SunGlow />
+              <SkyDome />
+              <SunGlow />
 
-            <CameraRig progress={progress} />
-            <ToriiGate />
-            <AboutStone />
-            <FarIslandGroup progress={progress} completedRef={completedRef} />
-            <LiquidPortal progress={progress} />
-            <WaterSurface res={quality.res} />
-          </Suspense>
+              <CameraRig progress={progress} />
+              <ToriiGate />
+              <AboutStone />
+              <FarIslandGroup progress={progress} completedRef={completedRef} />
+              <LiquidPortal progress={progress} />
+              <WaterSurface res={quality.res} />
+            </Suspense>
+          </SceneBoundary>
         </Canvas>
 
         {/* black portal fill — color next section ke bg (#000000) se match:
