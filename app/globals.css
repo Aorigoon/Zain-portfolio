@@ -31,16 +31,28 @@
   padding: 0;
 }
 
+html {
+  /* viewport par horizontal scroll kabhi na ho — na patti, na drag */
+  overflow-x: clip;
+}
+
+html,
 body {
   font-family: 'Plus Jakarta Sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
 }
 
+html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 
