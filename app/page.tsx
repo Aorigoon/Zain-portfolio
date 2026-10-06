@@ -19,7 +19,10 @@ export default function RealPortfolio() {
       document.documentElement.style.overflow = "clip";
     } else {
       document.documentElement.style.overflow = "";
-      document.body.style.overflow = "auto";
+      // body ko visible hi rehne do — "auto" yahan body ko scroll container
+      // bana deta hai (root pe overflow-x: clip hai), jisse #hero ka
+      // position: sticky mar jata hai aur hero upar khisak jata hai
+      document.body.style.overflow = "";
     }
   }, [splashFinished]);
 

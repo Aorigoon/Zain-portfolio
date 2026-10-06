@@ -80,7 +80,7 @@ export default function ContactSection() {
         justifyContent: "center"
       }}
     >
-      <div className="container tw-container-1800-px">
+      <div className="container tw-container-1800-px self-center">
         <form onSubmit={handleSubmit} className="contact-sentence-form">
           <div className="sentence-container">
             {/* Row 1 */}

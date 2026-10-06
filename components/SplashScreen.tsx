@@ -38,11 +38,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     const words   = wordsRef.current.children;
     const pillars = pillarsRef.current ? Array.from(pillarsRef.current.children) : [];
 
-    // Failsafe: agar GSAP/rAF kisi bhi wajah se atak jaye (background tab,
-    // slow phone, GPU hiccup) to splash hamesha ke liye white na chhode.
-    const failsafe = window.setTimeout(() => finish(true), 8000);
-    return () => window.clearTimeout(failsafe);
-
     const tl = gsap.timeline();
 
     // ── 0. Reveal screen (pillars slide away) ──────────────────────────
@@ -85,6 +80,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       });
     }
 
+    // Failsafe: agar GSAP/rAF kisi bhi wajah se atak jaye (background tab,
+    // GPU hiccup) to splash hamesha ke liye white na chhode. 12s — dev
+    // compile / slow phone me normal splash (~5-9s) skip na ho.
+    // (YE EFFECT KE SABSE END PE HONA ZAROORI HAI — iske baad koi return
+    // nahi, warna timeline ka code dead ho jata hai)
+    const failsafe = window.setTimeout(() => finish(true), 12000);
+    return () => window.clearTimeout(failsafe);
   }, [onComplete]);
 
   return (
