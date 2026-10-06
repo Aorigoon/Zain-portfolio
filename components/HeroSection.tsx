@@ -356,6 +356,83 @@ export default function HeroSection({ splashFinished = false, children }: HeroSe
     return () => cancelAnimationFrame(animId);
   }, [splashFinished]);
 
+  // Flowty-style wheel glide (hero ke andar): wheel input seedha page scroll
+  // nahi karta — ek damped target ko move karta hai aur page smooth glide se
+  // us tak pahunchta hai. Isliye wheel kitni bhi tez ghume, cloth apni fixed
+  // pace se poora play hota hai; hero khatam hote hi native scroll wapas.
+  useEffect(() => {
+    if (!splashFinished) return;
+
+    let targetY = window.scrollY;
+    let smoothY = window.scrollY;
+    let gliding = false;
+    let raf = 0;
+    let lastT = 0;
+
+    const heroEnd = () =>
+      (containerRef.current?.offsetTop ?? 0) +
+      (containerRef.current?.offsetHeight ?? 0) -
+      window.innerHeight;
+
+    const glide = (now: number) => {
+      const dt = lastT ? Math.min(50, now - lastT) : 16.7;
+      lastT = now;
+      const k = 1 - Math.pow(1 - 0.1, dt / 16.7);
+      const maxStep = window.innerHeight * 0.014 * (dt / 16.7);
+      const diff = targetY - smoothY;
+      smoothY += Math.max(-maxStep, Math.min(maxStep, diff * k));
+      window.scrollTo(0, smoothY);
+      if (Math.abs(targetY - smoothY) < 1) {
+        gliding = false;
+        raf = 0;
+        lastT = 0;
+      } else {
+        raf = requestAnimationFrame(glide);
+      }
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const end = heroEnd();
+      const y = window.scrollY;
+      if (y > end - 1 && !gliding) return; // hero ke bahar — native scroll
+      const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+      // Target already hero ke end par aur aage jaana hai — native ko haanf do
+      if (targetY >= end && dy > 0 && y > end - 40) return;
+      e.preventDefault();
+      if (!gliding) {
+        targetY = y;
+        smoothY = y;
+        gliding = true;
+      }
+      targetY = Math.max(0, Math.min(end, targetY + dy));
+      if (!raf) {
+        lastT = 0;
+        raf = requestAnimationFrame(glide);
+      }
+    };
+
+    // Scrollbar drag / keyboard / touch — native scroll ke saath resync
+    const onScroll = () => {
+      if (gliding) {
+        if (Math.abs(window.scrollY - smoothY) > 60) {
+          gliding = false;
+          raf = 0;
+          targetY = smoothY = window.scrollY;
+        }
+      } else {
+        targetY = smoothY = window.scrollY;
+      }
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [splashFinished]);
+
   return (
     <div
       ref={containerRef}
