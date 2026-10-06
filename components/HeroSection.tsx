@@ -326,17 +326,26 @@ export default function HeroSection({ splashFinished = false, children }: HeroSe
         const scrollableHeight = containerRef.current.offsetHeight - window.innerHeight;
 
         if (scrollableHeight > 0) {
-          const rawProgress = Math.max(0, Math.min(1, -rect.top / scrollableHeight));
+          const scrolled = -rect.top;
+          const rawProgress = Math.max(0, Math.min(1, scrolled / scrollableHeight));
 
-          // Slow-smooth follow: wheel kitni bhi tez ghume, cloth max 0.012/frame
-          // (~0.72/sec) ki fixed speed se catch-up karta hai — chhote scrolls
-          // par exponential lerp settle. dt-based hai, high-refresh par bhi same.
-          const dt = lastT ? Math.min(50, now - lastT) : 16.7;
-          lastT = now;
-          const k = 1 - Math.pow(1 - 0.05, dt / 16.7);
-          const maxStep = 0.012 * (dt / 16.7);
-          const diff = rawProgress - dropRef.current;
-          dropRef.current += Math.max(-maxStep, Math.min(maxStep, diff * k));
+          if (scrolled > scrollableHeight + 2) {
+            // Sticky unpin ho chuka — ab canvas page ke saath scroll kar raha
+            // hai. Slow-follow ka lag yahan cloth ko canvas ke edge se kaat ke
+            // atki hui patti jaisa dikhata hai, isliye yahan full sync.
+            dropRef.current = rawProgress;
+          } else {
+            // Slow-smooth follow: wheel kitni bhi tez ghume, cloth max
+            // 0.012/frame (~0.72/sec) ki fixed speed se catch-up karta hai —
+            // chhote scrolls par exponential lerp settle. dt-based hai,
+            // high-refresh par bhi same.
+            const dt = lastT ? Math.min(50, now - lastT) : 16.7;
+            lastT = now;
+            const k = 1 - Math.pow(1 - 0.05, dt / 16.7);
+            const maxStep = 0.012 * (dt / 16.7);
+            const diff = rawProgress - dropRef.current;
+            dropRef.current += Math.max(-maxStep, Math.min(maxStep, diff * k));
+          }
         }
       }
 
